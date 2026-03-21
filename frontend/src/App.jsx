@@ -20,13 +20,12 @@ function App() {
   return (
     <BrowserRouter>
       <div className="app">
-
         <Routes>
           <Route path="/" element={<EntryPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<SignupPage />} />
           <Route path="/search" element={<SearchParkingPage />} />
-          <Route path="/results" element={<ParkingResultsPage />} />
+          <Route path="/parking-results" element={<ParkingResultsPage />} />
           <Route path="/guest" element={<GuestAccessPage />} />
           <Route path="/guest-parking" element={<GuestParkingPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
@@ -34,7 +33,10 @@ function App() {
           <Route path="/navigation" element={<NavigationPage />} />
           <Route path="/admin" element={<AdminDashboardPage />} />
           <Route path="/manage" element={<ManageParkingSpotsPage />} />
-          <Route path="/register-suggestion" element={<RegistrationSuggestionPage />} />
+          <Route
+            path="/register-suggestion"
+            element={<RegistrationSuggestionPage />}
+          />
         </Routes>
       </div>
     </BrowserRouter>
