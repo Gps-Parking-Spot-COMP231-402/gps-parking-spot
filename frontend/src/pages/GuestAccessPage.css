@@ -1,0 +1,47 @@
+.guest-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #FFCBA4, #7a73ff);
+}
+
+.guest-card {
+  width: 340px;
+  padding: 40px 24px;
+  background: white;
+  border-radius: 30px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+
+.guest-image {
+  width: 180px;
+  margin-bottom: 20px;
+}
+
+.guest-title {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #222;
+}
+
+.guest-subtitle {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 30px;
+  line-height: 1.5;
+}
+
+.guest-buttons {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
