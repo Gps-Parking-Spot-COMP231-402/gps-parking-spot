@@ -1,9 +1,14 @@
-function ParkingCard({ spot, isSelected, onSelect }) {
+function ParkingCard({ spot, isSelected, onSelect, onSavePreference }) {
   const spotCode = spot.spotCode || "N/A";
   const lotName = spot.lotName || "Parking Lot";
   const parkingType = spot.type || "regular";
   const isPaid = spot.isPaid !== undefined ? spot.isPaid : true;
-  const isAvailable = spot.isAvailable !== undefined ? spot.isAvailable : spot.available;
+  const isAvailable =
+    typeof spot.availableSpots === "number"
+      ? spot.availableSpots > 0
+      : spot.isAvailable !== undefined
+        ? spot.isAvailable
+        : spot.available;
   
   const totalSpaces = Number(spot.totalSpaces) > 0 ? Number(spot.totalSpaces) : 1;
   const reservedSpots =
@@ -31,10 +36,17 @@ function ParkingCard({ spot, isSelected, onSelect }) {
   };
 
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       className={`dashboard-spot-card ${isSelected ? "selected" : ""}`}
       onClick={() => onSelect(spot)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onSelect(spot);
+        }
+      }}
     >
       <div className="dashboard-spot-card-head">
         <div className="spot-code-and-type">
@@ -68,7 +80,22 @@ function ParkingCard({ spot, isSelected, onSelect }) {
         <span>{availableSpots} available</span>
         <span>{reservedSpots} reserved</span>
       </div>
-    </button>
+
+      {typeof onSavePreference === "function" ? (
+        <div className="spot-card-actions">
+          <button
+            type="button"
+            className="spot-save-preference-btn"
+            onClick={(event) => {
+              event.stopPropagation();
+              onSavePreference(spot);
+            }}
+          >
+            Save Preference
+          </button>
+        </div>
+      ) : null}
+    </div>
   );
 }
 

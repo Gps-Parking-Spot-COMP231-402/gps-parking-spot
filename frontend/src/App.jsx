@@ -10,10 +10,13 @@ import ParkingResultsPage from "./pages/ParkingResultsPage";
 import GuestAccessPage from "./pages/GuestAccessPage";
 import GuestParkingPage from "./pages/GuestParkingPage";
 import DashboardPage from "./pages/DashboardPage";
+import BookingHistoryPage from "./pages/BookingHistoryPage";
+import ProfilePage from "./pages/ProfilePage";
 import ParkingTypePage from "./pages/ParkingTypePage";
 import NavigationPage from "./pages/NavigationPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import ManageParkingSpotsPage from "./pages/ManageParkingSpotsPage";
+import AdminUsersPage from "./pages/AdminUsersPage";
 import RegistrationSuggestionPage from "./pages/RegistrationSuggestionPage";
 
 const getStoredUser = () => {
@@ -106,6 +109,22 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/history"
+            element={
+              <ProtectedRoute>
+                <BookingHistoryPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/parking-type" element={<ParkingTypePage />} />
           <Route path="/navigation" element={<NavigationPage />} />
           <Route
@@ -121,6 +140,14 @@ function App() {
             element={
               <AdminOnlyRoute>
                 <ManageParkingSpotsPage />
+              </AdminOnlyRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <AdminOnlyRoute>
+                <AdminUsersPage />
               </AdminOnlyRoute>
             }
           />

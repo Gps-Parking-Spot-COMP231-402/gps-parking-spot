@@ -2,9 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ParkingCard from "../components/ParkingCard";
 import MapView from "../components/MapView";
+import { getApiBase, parseResponseSafely } from "../utils/api";
 import "./ParkingResultsPage.css";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_BASE = getApiBase();
 
 function ParkingResultsPage() {
   const [parkingSpots, setParkingSpots] = useState([]);
@@ -41,7 +42,7 @@ function ParkingResultsPage() {
         throw new Error("Failed to fetch parking spots");
       }
 
-      const data = await response.json();
+      const data = await parseResponseSafely(response);
       setParkingSpots(data);
       setLastUpdated(new Date());
       setSelectedSpot((prev) => {

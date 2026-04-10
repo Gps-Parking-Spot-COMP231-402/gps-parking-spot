@@ -10,8 +10,9 @@ import {
   useMap,
 } from "react-leaflet";
 import L from "leaflet";
+import { getApiBase, parseResponseSafely } from "../utils/api";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_BASE = getApiBase();
 
 // --- Icons ---
 function createParkingIcon(backgroundColor, borderColor) {
@@ -91,8 +92,14 @@ function MapView({ spot: selectedSpot, spots: providedSpots = [], onSelectSpot }
     const [lat, lng] = userCoords;
 
     fetch(`${API_BASE}/api/parking/search?lat=${lat}&lng=${lng}`)
-      .then((res) => res.json())
-      .then((data) => setNearbySpots(data))
+      .then(async (res) => {
+        const data = await parseResponseSafely(res);
+        if (!res.ok) {
+          throw new Error(data.message || "Failed to load nearby parking spots.");
+        }
+        return data;
+      })
+      .then((data) => setNearbySpots(Array.isArray(data) ? data : []))
       .catch((err) => console.error("Error fetching parking spots:", err));
   }, [providedSpots.length, userCoords]);
 
@@ -128,7 +135,10 @@ function MapView({ spot: selectedSpot, spots: providedSpots = [], onSelectSpot }
       )}
 
       {markerSpots.map((item) => {
-        const available = item.availableSpots > 0 || item.isAvailable;
+        const available =
+          typeof item.availableSpots === "number"
+            ? item.availableSpots > 0
+            : item.isAvailable !== false;
         const icon = selectedSpot?._id === item._id ? blueIcon : available ? greenIcon : redIcon;
         return (
           <Marker

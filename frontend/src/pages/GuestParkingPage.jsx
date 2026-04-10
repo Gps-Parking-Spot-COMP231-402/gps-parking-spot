@@ -2,9 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import MapView from "../components/MapView";
 import ParkingCard from "../components/ParkingCard";
+import { getApiBase, parseResponseSafely } from "../utils/api";
 import "./GuestParkingPage.css";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_BASE = getApiBase();
 
 function GuestParkingPage() {
   const [spots, setSpots] = useState([]);
@@ -34,7 +35,7 @@ function GuestParkingPage() {
         throw new Error("Failed to load parking spots from database");
       }
 
-      const data = await response.json();
+      const data = await parseResponseSafely(response);
       setSpots(data);
       setLastUpdated(new Date());
 

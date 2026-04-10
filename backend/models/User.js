@@ -19,6 +19,36 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 6,
     },
+    phoneNumber: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    carType: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    carBrand: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    carModel: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    carPlateNumber: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    carColor: {
+      type: String,
+      default: "",
+      trim: true,
+    },
     role: {
       type: String,
       enum: ["user", "admin"],

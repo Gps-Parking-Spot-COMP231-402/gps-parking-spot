@@ -2,17 +2,33 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import ParkingSpotForm from "../components/ParkingSpotForm";
+import { getApiBase, parseResponseSafely } from "../utils/api";
 import "./ManageParkingSpotsPage.css";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_BASE = getApiBase();
 
 function ManageParkingSpotsPage() {
   const navigate = useNavigate();
   const [spots, setSpots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [updatingSpotId, setUpdatingSpotId] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+
+  const getCurrentUserId = () => {
+    const storedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
+    if (!storedUser) {
+      return "";
+    }
+
+    try {
+      const parsed = JSON.parse(storedUser);
+      return parsed.id || parsed._id || "";
+    } catch {
+      return "";
+    }
+  };
 
   const loadSpots = useCallback(async () => {
     setError("");
@@ -20,7 +36,7 @@ function ManageParkingSpotsPage() {
 
     try {
       const response = await fetch(`${API_BASE}/api/parking/live`);
-      const data = await response.json();
+      const data = await parseResponseSafely(response);
 
       if (!response.ok) {
         throw new Error(data.message || "Failed to load parking spots.");
@@ -52,7 +68,7 @@ function ManageParkingSpotsPage() {
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      const data = await parseResponseSafely(response);
 
       if (!response.ok) {
         return {
@@ -71,6 +87,53 @@ function ManageParkingSpotsPage() {
       };
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleToggleAvailability = async (spot) => {
+    const userId = getCurrentUserId();
+
+    if (!userId) {
+      setError("Please login as admin to update spot availability.");
+      setMessage("");
+      return;
+    }
+
+    const currentAvailable =
+      typeof spot.availableSpots === "number"
+        ? spot.availableSpots > 0
+        : spot.isAvailable !== false;
+
+    const nextAvailability = !currentAvailable;
+
+    setUpdatingSpotId(spot._id);
+    setError("");
+    setMessage("");
+
+    try {
+      const response = await fetch(`${API_BASE}/api/parking/${spot._id}/availability`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          isAvailable: nextAvailability,
+        }),
+      });
+
+      const data = await parseResponseSafely(response);
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to update availability.");
+      }
+
+      setMessage(data.message || "Spot availability updated successfully.");
+      await loadSpots();
+    } catch (err) {
+      setError(err.message || "Unable to update spot availability.");
+    } finally {
+      setUpdatingSpotId("");
     }
   };
 
@@ -151,7 +214,31 @@ function ManageParkingSpotsPage() {
                       <div className="spot-row-meta">
                         <span>{spot.type}</span>
                         <span>{spot.isPaid === false ? "Free" : `$${spot.pricePerHour}/hr`}</span>
-                        <span>{spot.isAvailable === false ? "Unavailable" : "Available"}</span>
+                        <span>
+                          {typeof spot.availableSpots === "number"
+                            ? spot.availableSpots > 0
+                              ? "Available"
+                              : "Full"
+                            : spot.isAvailable === false
+                              ? "Full"
+                              : "Available"}
+                        </span>
+                        <button
+                          type="button"
+                          className="refresh-list-btn"
+                          onClick={() => handleToggleAvailability(spot)}
+                          disabled={updatingSpotId === spot._id}
+                        >
+                          {updatingSpotId === spot._id
+                            ? "Updating..."
+                            : typeof spot.availableSpots === "number"
+                              ? spot.availableSpots > 0
+                                ? "Mark Full"
+                                : "Mark Available"
+                              : spot.isAvailable === false
+                                ? "Mark Available"
+                                : "Mark Full"}
+                        </button>
                       </div>
                     </article>
                   ))}

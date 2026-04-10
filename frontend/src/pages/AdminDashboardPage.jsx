@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { getApiBase, parseResponseSafely } from "../utils/api";
 import "./AdminDashboardPage.css";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_BASE = getApiBase();
 
 function AdminDashboardPage() {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ function AdminDashboardPage() {
 
       try {
         const response = await fetch(`${API_BASE}/api/parking/live`);
-        const data = await response.json();
+        const data = await parseResponseSafely(response);
 
         if (response.ok && isMounted) {
           setSpots(Array.isArray(data) ? data : []);
@@ -98,7 +99,7 @@ function AdminDashboardPage() {
               <div className="action-grid">
                 <button onClick={() => navigate("/manage")}>Manage Parking Spots</button>
                 <button onClick={() => navigate("/manage")}>Add New Spot</button>
-                <button>Reports</button>
+                <button onClick={() => navigate("/admin/users")}>Browse Users</button>
                 <button onClick={() => navigate("/dashboard")}>View User Dashboard</button>
               </div>
             </div>

@@ -2,8 +2,9 @@ import "./SignupPage.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import signupImage from "../assets/signuppage.jpg";
+import { getApiBase, parseResponseSafely } from "../utils/api";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = getApiBase();
 
 function SignUpPage() {
   const navigate = useNavigate();
@@ -66,7 +67,7 @@ function SignUpPage() {
         }),
       });
 
-      const data = await response.json();
+      const data = await parseResponseSafely(response);
 
       if (!response.ok) {
         if (response.status === 409) {

@@ -1,13 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ParkingCard from "../components/ParkingCard";
 import MapView from "../components/MapView";
 import Navbar from "../components/Navbar";
 import ParkingTypeFilter from "../components/ParkingTypeFilter";
+import { getApiBase, parseResponseSafely } from "../utils/api";
 import "./DashboardPage.css";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_BASE = getApiBase();
 
 function DashboardPage() {
+  const navigate = useNavigate();
   const [spots, setSpots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -25,6 +28,10 @@ function DashboardPage() {
   const [isReserving, setIsReserving] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
   const [activeReservation, setActiveReservation] = useState(null);
+  const [savedPreferences, setSavedPreferences] = useState([]);
+  const [preferencesMessage, setPreferencesMessage] = useState("");
+  const [preferencesError, setPreferencesError] = useState("");
+  const [isSavingPreferences, setIsSavingPreferences] = useState(false);
 
   const userDisplayName = useMemo(() => {
     const storedUser =
@@ -39,6 +46,21 @@ function DashboardPage() {
       return parsed.fullName || parsed.email || "User";
     } catch {
       return "User";
+    }
+  }, []);
+
+  const isAdminUser = useMemo(() => {
+    const storedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
+
+    if (!storedUser) {
+      return false;
+    }
+
+    try {
+      const parsed = JSON.parse(storedUser);
+      return (parsed.role || "").toString().toLowerCase() === "admin";
+    } catch {
+      return false;
     }
   }, []);
 
@@ -58,7 +80,7 @@ function DashboardPage() {
         throw new Error("Failed to load parking spots from database");
       }
 
-      const data = await response.json();
+      const data = await parseResponseSafely(response);
       setSpots(data);
       setLastUpdated(new Date());
 
@@ -80,10 +102,6 @@ function DashboardPage() {
       setIsRefreshing(false);
     }
   }, []);
-
-  useEffect(() => {
-    fetchSpots();
-  }, [fetchSpots]);
 
   const filteredSpots = useMemo(() => {
     const term = searchText.trim().toLowerCase();
@@ -162,17 +180,160 @@ function DashboardPage() {
 
   const getCurrentUserId = () => {
     const storedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
+    console.log("[DashboardPage] storedUser raw:", storedUser);
     if (!storedUser) {
       return "";
     }
 
     try {
       const parsed = JSON.parse(storedUser);
-      return parsed.id || parsed._id || "";
+      console.log("[DashboardPage] Parsed user object:", parsed);
+      const extracted = parsed.id || parsed._id || parsed.userId || "";
+      console.log("[DashboardPage] Extracted userId:", extracted, "Type:", typeof extracted);
+      return extracted;
     } catch {
       return "";
     }
   };
+
+  const loadPreferences = useCallback(async () => {
+    const userId = getCurrentUserId();
+    if (!userId) {
+      setSavedPreferences([]);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE}/api/preferences/${userId}`);
+      const data = await parseResponseSafely(response);
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to load preferences.");
+      }
+
+      const preferencesList = Array.isArray(data.preferencesList)
+        ? data.preferencesList
+        : data.preferences
+          ? [data.preferences]
+          : [];
+      setSavedPreferences(preferencesList);
+
+      const latestPreference = preferencesList[0] || null;
+
+      if (latestPreference) {
+        setMaxPrice(
+          latestPreference.maxPrice === null || latestPreference.maxPrice === undefined
+            ? ""
+            : String(latestPreference.maxPrice)
+        );
+        setOnlyAvailable(Boolean(latestPreference.onlyAvailable));
+        setOnlyFree(Boolean(latestPreference.freeOnly));
+        setSelectedParkingTypes(Array.isArray(latestPreference.parkingType) ? latestPreference.parkingType : []);
+      }
+    } catch (err) {
+      setPreferencesError(err.message || "Unable to load preferences.");
+    }
+  }, []);
+
+  const handleSavePreferences = async (preferredType) => {
+    const userId = getCurrentUserId();
+    console.log("[DashboardPage:handleSavePreferences] userId:", userId, "length:", userId?.length);
+    if (!userId) {
+      setPreferencesError("Please login to save preferences.");
+      return;
+    }
+
+    setIsSavingPreferences(true);
+    setPreferencesError("");
+    setPreferencesMessage("");
+
+    const preferredParkingTypes =
+      selectedParkingTypes.length > 0
+        ? selectedParkingTypes
+        : preferredType
+          ? [preferredType]
+          : [];
+
+    try {
+      const response = await fetch(`${API_BASE}/api/preferences/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          maxPrice: maxPrice === "" ? null : Number(maxPrice),
+          onlyAvailable,
+          freeOnly: onlyFree,
+          parkingType: preferredParkingTypes,
+        }),
+      });
+      console.log("[DashboardPage:handleSavePreferences] API request sent");
+
+      const data = await parseResponseSafely(response);
+      console.log("[DashboardPage:handleSavePreferences] API response received:", {
+        status: response.status,
+        ok: response.ok,
+        hasPreferences: Boolean(data.preferences),
+      });
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to save preferences.");
+      }
+
+      const preferencesList = Array.isArray(data.preferencesList)
+        ? data.preferencesList
+        : data.preferences
+          ? [data.preferences]
+          : [];
+      setSavedPreferences(preferencesList);
+      setPreferencesMessage(data.message || "Preferences saved for next visit.");
+    } catch (err) {
+      setPreferencesError(err.message || "Unable to save preferences.");
+    } finally {
+      setIsSavingPreferences(false);
+    }
+  };
+
+  const handleRemovePreferences = async () => {
+    const userId = getCurrentUserId();
+    if (!userId) {
+      setPreferencesError("Please login to remove preferences.");
+      return;
+    }
+
+    setIsSavingPreferences(true);
+    setPreferencesError("");
+    setPreferencesMessage("");
+
+    try {
+      const response = await fetch(`${API_BASE}/api/preferences/${userId}`, {
+        method: "DELETE",
+      });
+
+      const data = await parseResponseSafely(response);
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to remove preferences.");
+      }
+
+      setSavedPreferences([]);
+      setMaxPrice("");
+      setOnlyAvailable(false);
+      setOnlyFree(false);
+      setSelectedParkingTypes([]);
+      setPreferencesMessage(data.message || "Preferences removed.");
+    } catch (err) {
+      setPreferencesError(err.message || "Unable to remove preferences.");
+    } finally {
+      setIsSavingPreferences(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSpots();
+    loadPreferences();
+  }, [fetchSpots, loadPreferences]);
 
   const handleReserveSpot = async () => {
     if (!selectedSpot?._id || isReserving) {
@@ -202,7 +363,7 @@ function DashboardPage() {
         }),
       });
 
-      const data = await response.json();
+      const data = await parseResponseSafely(response);
 
       if (!response.ok) {
         throw new Error(data.message || "Failed to reserve this parking spot");
@@ -249,7 +410,7 @@ function DashboardPage() {
         }
       );
 
-      const data = await response.json();
+      const data = await parseResponseSafely(response);
 
       if (!response.ok) {
         throw new Error(data.message || "Payment failed");
@@ -265,13 +426,29 @@ function DashboardPage() {
     }
   };
 
+  const formatSavedPreferenceTypes = (types) => {
+    if (!Array.isArray(types) || types.length === 0) {
+      return "Any";
+    }
+
+    return types.join(", ");
+  };
+
+  const formatPreferencePrice = (value) => {
+    if (value === null || value === undefined || Number.isNaN(Number(value))) {
+      return "No limit";
+    }
+
+    return `$${Number(value)}`;
+  };
+
   return (
     <>
       <Navbar userName={userDisplayName} />
       <div className="dashboard-page">
       <div className="dashboard-header">
         <div>
-          <h1>User Dashboard</h1>
+          <h1>Home Page</h1>
           <p className="dashboard-user-name">Welcome, {userDisplayName}</p>
           <p>Live parking information loaded from your MongoDB database.</p>
           <p className="dashboard-realtime-status">
@@ -289,6 +466,29 @@ function DashboardPage() {
           disabled={isRefreshing}
         >
           {isRefreshing ? "Refreshing..." : "Refresh Data"}
+        </button>
+        {isAdminUser ? (
+          <button
+            type="button"
+            className="back-admin-btn dashboard-back-btn"
+            onClick={() => navigate("/admin")}
+          >
+            Back to Admin Dashboard
+          </button>
+        ) : null}
+        <button
+          type="button"
+          className="refresh-btn dashboard-secondary-btn"
+          onClick={() => navigate("/history")}
+        >
+          Booking History
+        </button>
+        <button
+          type="button"
+          className="refresh-btn dashboard-secondary-btn"
+          onClick={() => navigate("/profile")}
+        >
+          Profile
         </button>
       </div>
 
@@ -360,12 +560,78 @@ function DashboardPage() {
                   spot={spot}
                   isSelected={selectedSpot?._id === spot._id}
                   onSelect={setSelectedSpot}
+                    onSavePreference={() => handleSavePreferences(spot.type || "regular")}
                 />
               ))
             )}
           </section>
 
           <aside>
+              <div className="preferences-panel">
+                <div className="dashboard-map-title-row">
+                  <h3>Saved Preferences</h3>
+                </div>
+                <p className="dashboard-map-subtitle">
+                  These settings are restored the next time you visit.
+                </p>
+
+                {savedPreferences.length > 0 ? (
+                  <div className="preferences-history-list">
+                    {savedPreferences.map((preference, index) => (
+                      <div className="preferences-details-list" key={`${preference.savedAt || "na"}-${index}`}>
+                        <div className="preference-item preference-item-title">
+                          <div className="preference-label">Preference #{savedPreferences.length - index}</div>
+                          <div className="preference-value">
+                            {preference.savedAt ? new Date(preference.savedAt).toLocaleString() : "Saved"}
+                          </div>
+                        </div>
+                        <div className="preference-item">
+                          <div className="preference-label">Max Price</div>
+                          <div className="preference-value">{formatPreferencePrice(preference.maxPrice)}</div>
+                        </div>
+                        <div className="preference-item">
+                          <div className="preference-label">Only Available Spots</div>
+                          <div className="preference-value">{preference.onlyAvailable ? "✓ Yes" : "✗ No"}</div>
+                        </div>
+                        <div className="preference-item">
+                          <div className="preference-label">Free Parking Only</div>
+                          <div className="preference-value">{preference.freeOnly ? "✓ Yes" : "✗ No"}</div>
+                        </div>
+                        <div className="preference-item">
+                          <div className="preference-label">Parking Types</div>
+                          <div className="preference-value">{formatSavedPreferenceTypes(preference.parkingType)}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="preferences-empty">No preferences saved yet.</p>
+                )}
+
+                <div className="preferences-actions-row">
+                  <button
+                    type="button"
+                    className="save-preferences-btn"
+                    onClick={() => handleSavePreferences(selectedSpot?.type || "regular")}
+                    disabled={isSavingPreferences}
+                  >
+                    {isSavingPreferences ? "Saving..." : "Save Current Preferences"}
+                  </button>
+
+                  <button
+                    type="button"
+                    className="unsave-preferences-btn"
+                    onClick={handleRemovePreferences}
+                    disabled={savedPreferences.length === 0 || isSavingPreferences}
+                  >
+                    Remove Saved Preferences
+                  </button>
+                </div>
+
+                {preferencesMessage ? <p className="preferences-message success">{preferencesMessage}</p> : null}
+                {preferencesError ? <p className="preferences-message error">{preferencesError}</p> : null}
+              </div>
+
             <div className="reservation-actions-panel">
               <h3>Reserve & Pay</h3>
               <p>

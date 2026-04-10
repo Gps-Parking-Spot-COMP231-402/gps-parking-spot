@@ -73,6 +73,14 @@
   cursor: pointer;
 }
 
+.dashboard-back-btn {
+  white-space: nowrap;
+}
+
+.dashboard-secondary-btn {
+  margin-left: 8px;
+}
+
 .dashboard-stats {
   max-width: 1120px;
   margin: 0 auto 14px;
@@ -301,11 +309,143 @@
   margin-top: 6px;
 }
 
+.spot-card-actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.spot-save-preference-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 7px 11px;
+  background: linear-gradient(135deg, #7a73ff, #655ef0);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
 .dashboard-map-panel {
   background: rgba(255, 255, 255, 0.95);
   border: 1.5px solid #dfdbff;
   border-radius: 14px;
   padding: 12px;
+}
+
+.preferences-panel {
+  margin-bottom: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1.5px solid #dfdbff;
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.preferences-details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 12px;
+  border: 1px solid #e5e1ff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.preferences-history-list {
+  display: grid;
+  gap: 10px;
+  max-height: 260px;
+  overflow: auto;
+  padding-right: 2px;
+  margin-bottom: 12px;
+}
+
+.preference-item.preference-item-title {
+  background: #eff2ff;
+}
+
+.preference-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px solid #f0ecff;
+  background: #fafbff;
+}
+
+.preference-item:last-child {
+  border-bottom: none;
+}
+
+.preference-label {
+  color: #666b83;
+  font-size: 0.9rem;
+  font-weight: 600;
+  flex: 1;
+}
+
+.preference-value {
+  color: #2f2f3d;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-align: right;
+  padding-left: 12px;
+}
+
+.preferences-empty {
+  margin: 0 0 10px;
+  color: #57576f;
+  font-size: 0.88rem;
+}
+
+.save-preferences-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 9px 12px;
+  background: linear-gradient(135deg, #7a73ff, #655ef0);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.save-preferences-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.preferences-actions-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.unsave-preferences-btn {
+  border: 1px solid #d8d1ff;
+  border-radius: 10px;
+  padding: 9px 12px;
+  background: #fff;
+  color: #4a4a63;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.unsave-preferences-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.preferences-message {
+  margin: 8px 0 0;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.preferences-message.success {
+  color: #146b39;
+}
+
+.preferences-message.error {
+  color: #b03f3f;
 }
 
 .dashboard-map-panel .parking-map,

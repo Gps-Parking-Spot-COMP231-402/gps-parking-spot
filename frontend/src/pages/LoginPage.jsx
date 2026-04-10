@@ -2,8 +2,9 @@ import "./LoginPage.css";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import loginImage from "../assets/loginpagepic.jpg";
+import { getApiBase, parseResponseSafely } from "../utils/api";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = getApiBase();
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ function LoginPage() {
         }),
       });
 
-      const data = await response.json();
+      const data = await parseResponseSafely(response);
 
       if (!response.ok) {
         setError(data.message || "Login failed");
@@ -56,10 +57,15 @@ function LoginPage() {
       sessionStorage.removeItem("user");
 
       const storage = formData.rememberMe ? localStorage : sessionStorage;
-      storage.setItem("token", data.token);
-      storage.setItem("user", JSON.stringify(data.user));
+      const normalizedUser = {
+        ...(data.user || {}),
+        userId: data?.user?.id || data?.user?._id || data?.user?.userId || "",
+      };
 
-      const role = (data?.user?.role || "user").toLowerCase();
+      storage.setItem("token", data.token);
+      storage.setItem("user", JSON.stringify(normalizedUser));
+
+      const role = (normalizedUser?.role || "user").toLowerCase();
       const destination = role === "admin" ? "/admin" : "/dashboard";
       navigate(destination);
     } catch (err) {
