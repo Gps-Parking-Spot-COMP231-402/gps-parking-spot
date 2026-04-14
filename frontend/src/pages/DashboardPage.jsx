@@ -31,6 +31,7 @@ function DashboardPage() {
   const [preferencesMessage, setPreferencesMessage] = useState("");
   const [preferencesError, setPreferencesError] = useState("");
   const [isSavingPreferences, setIsSavingPreferences] = useState(false);
+  const [promoCode, setPromoCode] = useState("");
 
   const userData = useMemo(() => {
     const storedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
@@ -344,26 +345,50 @@ function DashboardPage() {
     setReservationMessage("");
 
     try {
-      const response = await fetch(`${API_BASE}/api/parking/${selectedSpot._id}/reserve`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId,
-          durationHours: 1,
-        }),
-      });
+      const enteredCode = promoCode.trim().toUpperCase();
+      const baseAmount =
+        typeof selectedSpot?.pricePerHour === "number" && selectedSpot.isPaid !== false
+          ? selectedSpot.pricePerHour
+          : 0;
 
-      const data = await parseResponseSafely(response);
+      await new Promise((resolve) => setTimeout(resolve, 800));
 
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to reserve this parking spot");
+      if (enteredCode === "FREE2026") {
+        const demoReservation = {
+          _id: `demo-free-${Date.now()}`,
+          paymentStatus: "paid",
+          amountDue: 0,
+        };
+
+        setActiveReservation(demoReservation);
+        setReservationMessage("Spot reserved for FREE using code.");
+        return;
       }
 
-      setActiveReservation(data.reservation || null);
-      setReservationMessage(data.message || "Spot reserved successfully.");
-      await fetchSpots({ silent: true });
+      if (enteredCode && enteredCode !== "FREE2026") {
+        const demoReservation = {
+          _id: `demo-pending-${Date.now()}`,
+          paymentStatus: "pending",
+          amountDue: baseAmount,
+        };
+
+        setActiveReservation(demoReservation);
+        setReservationMessage("Invalid code. Payment required.");
+        return;
+      }
+
+      const demoReservation = {
+        _id: `demo-standard-${Date.now()}`,
+        paymentStatus: baseAmount > 0 ? "pending" : "paid",
+        amountDue: baseAmount,
+      };
+
+      setActiveReservation(demoReservation);
+      setReservationMessage(
+        baseAmount > 0
+          ? "Reservation created. Payment required."
+          : "Spot reserved successfully."
+      );
     } catch (err) {
       setReservationError(err.message || "Unable to reserve this parking spot");
     } finally {
@@ -373,6 +398,27 @@ function DashboardPage() {
 
   const handlePayReservation = async () => {
     if (!activeReservation?._id || isPaying) {
+      return;
+    }
+
+    if (String(activeReservation._id).startsWith("demo-")) {
+      setIsPaying(true);
+      setReservationError("");
+      setReservationMessage("");
+
+      setTimeout(() => {
+        setActiveReservation((prev) =>
+          prev
+            ? {
+                ...prev,
+                paymentStatus: "paid",
+                amountDue: 0,
+              }
+            : prev
+        );
+        setReservationMessage("Payment successful.");
+        setIsPaying(false);
+      }, 800);
       return;
     }
 
@@ -660,6 +706,35 @@ function DashboardPage() {
                     ? `Selected: ${selectedSpot.lotName || selectedSpot.spotCode || "Parking Spot"}`
                     : "Select a spot to reserve."}
                 </p>
+
+                <label
+                  htmlFor="promo-code"
+                  style={{
+                    display: "block",
+                    fontWeight: 600,
+                    marginBottom: "0.4rem",
+                    color: "#1f2937",
+                  }}
+                >
+                  Enter Free Code
+                </label>
+
+                <input
+                  id="promo-code"
+                  type="text"
+                  value={promoCode}
+                  onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                  placeholder="FREE2026"
+                  style={{
+                    width: "100%",
+                    padding: "0.75rem 0.9rem",
+                    borderRadius: "10px",
+                    border: "1px solid #d1d5db",
+                    marginBottom: "0.9rem",
+                    fontSize: "0.95rem",
+                    boxSizing: "border-box",
+                  }}
+                />
 
                 {selectedSpot?.isReserved ? (
                   <p className="reservation-error">
