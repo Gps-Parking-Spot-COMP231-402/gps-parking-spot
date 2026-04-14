@@ -14,9 +14,6 @@ function ParkingResultsPage() {
   const [selectedSpot, setSelectedSpot] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(null);
-  const [promoCode, setPromoCode] = useState("");
-  const [reserveMessage, setReserveMessage] = useState("");
-  const [isReserving, setIsReserving] = useState(false);
 
   const locationHook = useLocation();
   const navigate = useNavigate();
@@ -73,58 +70,6 @@ function ParkingResultsPage() {
   useEffect(() => {
     fetchParkingSpots();
   }, [fetchParkingSpots]);
-
-  const handleReserve = async () => {
-    if (!selectedSpot?._id) {
-      setReserveMessage("Please select a parking spot first.");
-      return;
-    }
-
-    let user = null;
-
-    try {
-      user = JSON.parse(localStorage.getItem("user"));
-    } catch {
-      user = null;
-    }
-
-    if (!user?._id) {
-      setReserveMessage("Please log in first.");
-      return;
-    }
-
-    setIsReserving(true);
-    setReserveMessage("");
-
-    try {
-      const response = await fetch(
-        `${API_BASE}/api/parking/${selectedSpot._id}/reserve`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userId: user._id,
-            durationHours: 1,
-            promoCode: promoCode,
-          }),
-        }
-      );
-
-      const data = await parseResponseSafely(response);
-
-      if (!response.ok) {
-        throw new Error(data?.message || "Reservation failed");
-      }
-
-      setReserveMessage(data?.message || "Reservation successful");
-    } catch (err) {
-      setReserveMessage(err.message || "Reservation failed");
-    } finally {
-      setIsReserving(false);
-    }
-  };
 
   const params = useMemo(() => {
     return new URLSearchParams(locationHook.search);
@@ -189,38 +134,6 @@ function ParkingResultsPage() {
               spots={parkingSpots}
               onSelectSpot={setSelectedSpot}
             />
-
-            {selectedSpot && (
-              <div className="reservation-panel">
-                <h3>Reserve This Spot</h3>
-                <p>
-                  <strong>{selectedSpot.name || selectedSpot.location}</strong>
-                </p>
-
-                <label htmlFor="promoCode">Enter Free Code</label>
-                <input
-                  id="promoCode"
-                  type="text"
-                  placeholder="FREE2026"
-                  value={promoCode}
-                  onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                  className="promo-input"
-                />
-
-                <button
-                  type="button"
-                  className="reserve-button"
-                  onClick={handleReserve}
-                  disabled={isReserving}
-                >
-                  {isReserving ? "Reserving..." : "Reserve Spot"}
-                </button>
-
-                {reserveMessage && (
-                  <p className="reserve-message">{reserveMessage}</p>
-                )}
-              </div>
-            )}
           </aside>
         </div>
       )}
