@@ -101,6 +101,10 @@ function AdminDashboardPage() {
                 <button onClick={() => navigate("/manage")}>Add New Spot</button>
                 <button onClick={() => navigate("/admin/users")}>Browse Users</button>
                 <button onClick={() => navigate("/dashboard")}>View User Dashboard</button>
+<<<<<<< HEAD
+=======
+                <button onClick={() => navigate("/admin/analytics")}>View Analytics</button>
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
               </div>
             </div>
 

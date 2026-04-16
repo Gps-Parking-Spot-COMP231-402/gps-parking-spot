@@ -7,6 +7,7 @@ import "./GuestParkingPage.css";
 
 const API_BASE = getApiBase();
 
+<<<<<<< HEAD
 function haversineDistanceMeters([lat1, lng1], [lat2, lng2]) {
   const toRad = (value) => (value * Math.PI) / 180;
   const earthRadiusMeters = 6371000;
@@ -54,6 +55,10 @@ function GuestParkingPage() {
   const [userCoords, setUserCoords] = useState(null);
   const [locationState, setLocationState] = useState("pending");
   const [recenterSignal, setRecenterSignal] = useState(0);
+=======
+function GuestParkingPage() {
+  const [spots, setSpots] = useState([]);
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedSpot, setSelectedSpot] = useState(null);
@@ -64,6 +69,7 @@ function GuestParkingPage() {
   const location = useLocation();
   const backTarget = location.state?.from || "/guest";
 
+<<<<<<< HEAD
   useEffect(() => {
     if (!navigator.geolocation) {
       setLocationState("unsupported");
@@ -80,6 +86,8 @@ function GuestParkingPage() {
     );
   }, []);
 
+=======
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
   const fetchSpots = useCallback(async ({ silent = false } = {}) => {
     if (!silent) {
       setLoading(true);
@@ -119,6 +127,7 @@ function GuestParkingPage() {
     fetchSpots();
   }, [fetchSpots]);
 
+<<<<<<< HEAD
   const sortedSpots = [...spots].sort((left, right) => {
     const leftCoords = getSpotCoords(left);
     const rightCoords = getSpotCoords(right);
@@ -138,6 +147,14 @@ function GuestParkingPage() {
   const availableCount = spots.filter((spot) => getAvailabilityState(spot) !== "full").length;
   const limitedCount = spots.filter((spot) => getAvailabilityState(spot) === "limited").length;
   const fullCount = spots.filter((spot) => getAvailabilityState(spot) === "full").length;
+=======
+  const availableCount = spots.filter((spot) => {
+    if (typeof spot.availableSpots === "number") {
+      return spot.availableSpots > 0;
+    }
+    return spot.available;
+  }).length;
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
 
   return (
     <div className="guest-parking-page">
@@ -149,6 +166,7 @@ function GuestParkingPage() {
           <h1>Parking Lot Map</h1>
         </div>
         <div className="header-stats">
+<<<<<<< HEAD
           <div className="header-status-legend" aria-label="Parking status legend">
             <span className="legend-chip available">Available</span>
             <span className="legend-chip limited">Limited</span>
@@ -159,6 +177,11 @@ function GuestParkingPage() {
           </span>
           <span className="stat-badge limited">{limitedCount} Limited</span>
           <span className="stat-badge full">{fullCount} Full</span>
+=======
+          <span className="stat-badge available">
+            {availableCount} Available
+          </span>
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
           <span className="stat-badge total">Total: {spots.length}</span>
           <button
             type="button"
@@ -174,6 +197,7 @@ function GuestParkingPage() {
               ? `Updated ${lastUpdated.toLocaleTimeString()}`
               : "Manual mode"}
           </span>
+<<<<<<< HEAD
           <span className={`location-badge location-${locationState}`}>
             {locationState === "granted"
               ? userCoords
@@ -194,6 +218,8 @@ function GuestParkingPage() {
               My Location
             </button>
           )}
+=======
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
           <button
             type="button"
             className="guest-register-btn"
@@ -225,10 +251,15 @@ function GuestParkingPage() {
           ) : (
             <MapView
               spot={selectedSpot}
+<<<<<<< HEAD
               spots={sortedSpots}
               onSelectSpot={setSelectedSpot}
               userCoords={userCoords}
               recenterSignal={recenterSignal}
+=======
+              spots={spots}
+              onSelectSpot={setSelectedSpot}
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
             />
           )}
         </div>
@@ -248,7 +279,11 @@ function GuestParkingPage() {
               {spots.length === 0 ? (
                 <p className="no-spots">No parking lots available</p>
               ) : (
+<<<<<<< HEAD
                 sortedSpots.map((spot) => (
+=======
+                spots.map((spot) => (
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
                   <ParkingCard
                     key={spot._id}
                     spot={spot}

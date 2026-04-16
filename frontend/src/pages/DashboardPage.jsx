@@ -322,6 +322,7 @@ function DashboardPage() {
     loadPreferences();
   }, [fetchSpots, loadPreferences]);
 
+<<<<<<< HEAD
   const handleReserveSpot = async () => {
     if (!selectedSpot?._id || isReserving) {
       return;
@@ -395,6 +396,61 @@ function DashboardPage() {
       setIsReserving(false);
     }
   };
+=======
+const handleReserveSpot = async () => {
+  if (!selectedSpot?._id || isReserving) {
+    return;
+  }
+
+  if (isSelectedSpotRestricted) {
+    setReservationError("This parking spot is reserved for admin users only.");
+    setReservationMessage("");
+    return;
+  }
+
+  const userId = getCurrentUserId();
+  if (!userId) {
+    setReservationError("Please login to reserve a parking spot.");
+    setReservationMessage("");
+    return;
+  }
+
+  setIsReserving(true);
+  setReservationError("");
+  setReservationMessage("");
+
+  try {
+    const response = await fetch(
+      `${API_BASE}/api/parking/${selectedSpot._id}/reserve`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          durationHours: 1,
+        }),
+      }
+    );
+
+    const data = await parseResponseSafely(response);
+
+    if (!response.ok) {
+      throw new Error(data.message || "Unable to reserve this parking spot");
+    }
+
+    setActiveReservation(data.reservation || null);
+    setReservationMessage(data.message || "Spot reserved successfully.");
+
+    await fetchSpots({ silent: true });
+  } catch (err) {
+    setReservationError(err.message || "Unable to reserve this parking spot");
+  } finally {
+    setIsReserving(false);
+  }
+};
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
 
   const handlePayReservation = async () => {
     if (!activeReservation?._id || isPaying) {
@@ -532,6 +588,7 @@ function DashboardPage() {
           </button>
         </div>
 
+<<<<<<< HEAD
         <div className="dashboard-workspace">
           <div className="dashboard-stats">
             <div className="stat-card">
@@ -598,6 +655,68 @@ function DashboardPage() {
 
           {!loading && !error ? (
             <div className="dashboard-content-grid">
+=======
+        <div className="dashboard-stats">
+          <div className="stat-card">
+            <span>Total Spots</span>
+            <strong>{totalCount}</strong>
+          </div>
+          <div className="stat-card">
+            <span>Available Now</span>
+            <strong>{availableCount}</strong>
+          </div>
+          <div className="stat-card">
+            <span>Showing</span>
+            <strong>{filteredSpots.length}</strong>
+          </div>
+        </div>
+
+        <div className="dashboard-filters">
+          <input
+            type="text"
+            placeholder="Search by location or address"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+
+          <input
+            type="number"
+            placeholder="Max price"
+            min="0"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
+          />
+
+          <label className="availability-toggle">
+            <input
+              type="checkbox"
+              checked={onlyAvailable}
+              onChange={(e) => setOnlyAvailable(e.target.checked)}
+            />
+            Only available spots
+          </label>
+
+          <label className="availability-toggle">
+            <input
+              type="checkbox"
+              checked={onlyFree}
+              onChange={(e) => setOnlyFree(e.target.checked)}
+            />
+            Free parking only
+          </label>
+
+          <ParkingTypeFilter
+            selectedTypes={selectedParkingTypes}
+            onChange={setSelectedParkingTypes}
+          />
+        </div>
+
+        {loading ? <p className="dashboard-message">Loading parking spots...</p> : null}
+        {error ? <p className="dashboard-error">{error}</p> : null}
+
+        {!loading && !error ? (
+          <div className="dashboard-content-grid">
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
             <section className="dashboard-list">
               {filteredSpots.length === 0 ? (
                 <p className="dashboard-message">No parking spots match your filters.</p>
@@ -614,6 +733,7 @@ function DashboardPage() {
               )}
             </section>
 
+<<<<<<< HEAD
             <section className="dashboard-map-column">
               <div className="dashboard-map-panel">
                 <div className="dashboard-map-title-row">
@@ -633,6 +753,9 @@ function DashboardPage() {
             </section>
 
             <aside className="dashboard-reference-column">
+=======
+            <aside>
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
               <div className="preferences-panel">
                 <div className="dashboard-map-title-row">
                   <h3>Saved Preferences</h3>
@@ -812,10 +935,32 @@ function DashboardPage() {
                   <p className="reservation-error">{reservationError}</p>
                 ) : null}
               </div>
+<<<<<<< HEAD
             </aside>
             </div>
           ) : null}
         </div>
+=======
+
+              <div className="dashboard-map-panel">
+                <div className="dashboard-map-title-row">
+                  <h3>Parking Map</h3>
+                </div>
+
+                <p className="dashboard-map-subtitle">
+                  Select a card or marker to see lot details and availability.
+                </p>
+
+                <MapView
+                  spot={selectedSpot}
+                  spots={filteredSpots}
+                  onSelectSpot={setSelectedSpot}
+                />
+              </div>
+            </aside>
+          </div>
+        ) : null}
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
       </div>
     </>
   );

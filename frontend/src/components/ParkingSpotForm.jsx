@@ -10,7 +10,10 @@ const defaultFormState = {
   latitude: "",
   longitude: "",
   totalSpaces: "1",
+<<<<<<< HEAD
   occupiedSpots: "0",
+=======
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
   description: "",
 };
 
@@ -45,10 +48,13 @@ function ParkingSpotForm({ onSubmitSpot, isSubmitting = false }) {
     const latitude = Number(formData.latitude);
     const longitude = Number(formData.longitude);
     const totalSpaces = Math.max(1, Number(formData.totalSpaces) || 1);
+<<<<<<< HEAD
     const occupiedSpots = Math.min(
       Math.max(0, Number(formData.occupiedSpots) || 0),
       totalSpaces
     );
+=======
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
 
     if (!Number.isFinite(price) || price < 0) {
       setError("Price must be a valid number greater than or equal to 0.");
@@ -77,7 +83,10 @@ function ParkingSpotForm({ onSubmitSpot, isSubmitting = false }) {
         coordinates: [longitude, latitude],
       },
       totalSpaces,
+<<<<<<< HEAD
       occupiedSpots,
+=======
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
       description: formData.description.trim(),
     };
 
@@ -172,6 +181,7 @@ function ParkingSpotForm({ onSubmitSpot, isSubmitting = false }) {
           />
         </label>
 
+<<<<<<< HEAD
         <label>
           Occupied Spots
           <input
@@ -183,6 +193,8 @@ function ParkingSpotForm({ onSubmitSpot, isSubmitting = false }) {
           />
         </label>
 
+=======
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
         <label className="checkbox-label">
           <input
             type="checkbox"

@@ -60,6 +60,7 @@
   justify-content: flex-end;
 }
 
+<<<<<<< HEAD
 .header-status-legend {
   display: flex;
   align-items: center;
@@ -67,6 +68,8 @@
   margin-right: 0.15rem;
 }
 
+=======
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
 .stat-badge {
   background: #edf4ff;
   color: #1f4f94;
@@ -87,6 +90,7 @@
   color: #324ea8;
 }
 
+<<<<<<< HEAD
 .stat-badge.limited {
   background: #fff4d6;
   color: #8b6400;
@@ -97,6 +101,8 @@
   color: #9c2f2f;
 }
 
+=======
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
 .manual-refresh-btn {
   background: #1c6ed8;
   color: #fff;
@@ -137,6 +143,7 @@
   font-size: 0.78rem;
 }
 
+<<<<<<< HEAD
 .location-recenter-btn {
   background: linear-gradient(135deg, #0f8d5a, #1ba56c);
   color: #fff;
@@ -178,6 +185,8 @@
   color: #1f4f94;
 }
 
+=======
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
 .guest-register-btn {
   border: 1px solid #0f8d5a;
   background: #ebfff6;
@@ -211,17 +220,28 @@
 }
 
 .guest-parking-main {
+<<<<<<< HEAD
   max-width: 1480px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 320px;
+=======
+  max-width: 1320px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 360px;
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
   gap: 1rem;
   align-items: start;
 }
 
 .map-container {
   position: relative;
+<<<<<<< HEAD
   min-height: calc(100vh - 190px);
+=======
+  min-height: 68vh;
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
   background: rgba(255, 255, 255, 0.75);
   border-radius: 18px;
   padding: 0.85rem;
@@ -233,7 +253,11 @@
 .map-container .parking-map {
   width: 100%;
   height: 100%;
+<<<<<<< HEAD
   min-height: calc(100vh - 220px);
+=======
+  min-height: 64vh;
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
   border-radius: 14px;
   overflow: hidden;
   z-index: 1;
@@ -297,6 +321,7 @@
   font-size: 1.02rem;
 }
 
+<<<<<<< HEAD
 .availability-legend {
   display: flex;
   flex-wrap: wrap;
@@ -324,6 +349,8 @@
   background: #d64f4f;
 }
 
+=======
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
 .sidebar-list {
   display: flex;
   flex-direction: column;
@@ -336,6 +363,7 @@
   padding: 1.5rem 0.75rem;
 }
 
+<<<<<<< HEAD
 .dashboard-spot-card {
   background: #fff;
   border: 1px solid rgba(39, 69, 120, 0.12);
@@ -480,6 +508,8 @@
   background: #d64f4f;
 }
 
+=======
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
 @keyframes pulse {
   0%,
   100% {
@@ -505,6 +535,7 @@
     grid-template-columns: 1fr;
   }
 
+<<<<<<< HEAD
   .map-container {
     min-height: 72vh;
   }
@@ -514,6 +545,8 @@
     min-height: 68vh;
   }
 
+=======
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
   .guest-parking-sidebar {
     position: fixed;
     right: 1rem;
@@ -564,14 +597,22 @@
   }
 
   .map-container {
+<<<<<<< HEAD
     min-height: 62vh;
+=======
+    min-height: 56vh;
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
     padding: 0.55rem;
     border-radius: 12px;
   }
 
   .map-container .leaflet-container,
   .map-container .parking-map {
+<<<<<<< HEAD
     min-height: 58vh;
+=======
+    min-height: 54vh;
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
     border-radius: 10px;
   }
 }

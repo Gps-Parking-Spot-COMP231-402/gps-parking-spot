@@ -104,9 +104,15 @@
 
 .results-container {
   display: grid;
+<<<<<<< HEAD
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
   gap: 2rem;
   max-width: 1520px;
+=======
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  max-width: 1400px;
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
   margin: 0 auto;
 }
 
@@ -129,8 +135,12 @@
   background: white;
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+<<<<<<< HEAD
   height: calc(100vh - 210px);
   min-height: 620px;
+=======
+  height: 75vh;
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
   overflow: hidden;
 }
 
@@ -143,16 +153,23 @@
   .spots-list,
   .results-map {
     max-height: none;
+<<<<<<< HEAD
+=======
+    height: auto;
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
   }
 
   .spots-list {
     max-height: 50vh;
   }
+<<<<<<< HEAD
 
   .results-map {
     height: 72vh;
     min-height: 540px;
   }
+=======
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
 }
 
 @media (max-width: 768px) {
@@ -177,11 +194,14 @@
   .spots-list {
     padding: 1.5rem;
   }
+<<<<<<< HEAD
 
   .results-map {
     height: 66vh;
     min-height: 420px;
   }
+=======
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
 }
 .reservation-panel {
   margin-top: 1rem;

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+<<<<<<< HEAD
 const dns = require("dns");
 
 const connectDB = async () => {
@@ -12,6 +13,11 @@ const connectDB = async () => {
       dns.setServers(dnsServers);
     }
 
+=======
+
+const connectDB = async () => {
+  try {
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
     const conn = await mongoose.connect(process.env.MONGO_URI);
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {

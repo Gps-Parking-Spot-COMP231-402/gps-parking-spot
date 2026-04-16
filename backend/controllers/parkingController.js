@@ -46,7 +46,10 @@ const updateParkingSpotAvailability = async (parkingSpotId) => {
     if (!spot) return;
 
     const totalSpaces = Number(spot.totalSpaces) > 0 ? Number(spot.totalSpaces) : 1;
+<<<<<<< HEAD
     const occupiedSpots = Math.max(0, Number(spot.occupiedSpots) || 0);
+=======
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
     const now = new Date();
 
     const reservedCount = await Reservation.countDocuments({
@@ -56,8 +59,12 @@ const updateParkingSpotAvailability = async (parkingSpotId) => {
       endTime: { $gte: now },
     });
 
+<<<<<<< HEAD
     const usedSpaces = Math.min(totalSpaces, reservedCount + occupiedSpots);
     const isFull = usedSpaces >= totalSpaces;
+=======
+    const isFull = reservedCount >= totalSpaces;
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
     spot.isAvailable = !isFull;
     spot.lastUpdated = new Date();
     await spot.save();
@@ -167,7 +174,11 @@ const createParkingSpot = async (req, res) => {
 
 const searchParkingSpots = async (req, res) => {
   try {
+<<<<<<< HEAD
     const { location, maxPrice, freeOnly, lng, lat, distance = 2000 } = req.query;
+=======
+    const { location, maxPrice, freeOnly, lng, lat } = req.query;
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
 
     let query = {};
 
@@ -193,6 +204,7 @@ const searchParkingSpots = async (req, res) => {
       });
     }
 
+<<<<<<< HEAD
     if (lng && lat) {
       query.location = {
         $near: {
@@ -206,6 +218,99 @@ const searchParkingSpots = async (req, res) => {
     }
 
     const spots = await ParkingSpot.find(query);
+=======
+    let spots = await ParkingSpot.find(query).lean();
+
+    if (lat && lng) {
+      const userLat = parseFloat(lat);
+      const userLng = parseFloat(lng);
+
+      const toRadians = (value) => (value * Math.PI) / 180;
+
+      const calculateDistanceKm = (lat1, lng1, lat2, lng2) => {
+        const R = 6371;
+        const dLat = toRadians(lat2 - lat1);
+        const dLng = toRadians(lng2 - lng1);
+
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(toRadians(lat1)) *
+            Math.cos(toRadians(lat2)) *
+            Math.sin(dLng / 2) *
+            Math.sin(dLng / 2);
+
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+      };
+
+      spots = spots.map((spot) => {
+        const coordinates = spot.location?.coordinates || [];
+        const spotLng = Number(coordinates[0]);
+        const spotLat = Number(coordinates[1]);
+
+        if (Number.isFinite(spotLat) && Number.isFinite(spotLng)) {
+          const distanceKm = calculateDistanceKm(userLat, userLng, spotLat, spotLng);
+
+          return {
+            ...spot,
+            distanceKm: Number(distanceKm.toFixed(2)),
+            distanceToEntranceKm: Number(distanceKm.toFixed(2)),
+            distanceToEVChargerKm:
+              String(spot.type || "").toLowerCase() === "ev"
+                ? Number((distanceKm + 0.1).toFixed(2))
+                : null,
+          };
+        }
+
+        return {
+          ...spot,
+          distanceKm: null,
+          distanceToEntranceKm: null,
+          distanceToEVChargerKm: null,
+        };
+      });
+
+      spots.sort((a, b) => {
+        const aAvailable =
+          typeof a.availableSpots === "number"
+            ? a.availableSpots > 0
+            : typeof a.isAvailable === "boolean"
+              ? a.isAvailable
+              : true;
+
+        const bAvailable =
+          typeof b.availableSpots === "number"
+            ? b.availableSpots > 0
+            : typeof b.isAvailable === "boolean"
+              ? b.isAvailable
+              : true;
+
+        if (aAvailable !== bAvailable) {
+          return aAvailable ? -1 : 1;
+        }
+
+        if (a.distanceKm == null && b.distanceKm == null) return 0;
+        if (a.distanceKm == null) return 1;
+        if (b.distanceKm == null) return -1;
+
+        return a.distanceKm - b.distanceKm;
+      });
+
+      spots = spots.map((spot, index) => {
+        const isAvailable =
+          typeof spot.availableSpots === "number"
+            ? spot.availableSpots > 0
+            : typeof spot.isAvailable === "boolean"
+              ? spot.isAvailable
+              : true;
+
+        return {
+          ...spot,
+          isBestOption: index === 0 && isAvailable,
+        };
+      });
+    }
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
 
     res.status(200).json(spots);
   } catch (error) {
@@ -246,9 +351,13 @@ const getParkingSpotsWithLiveAvailability = async (req, res) => {
         reservationMap.get(String(spot._id)) || 0,
         totalSpaces
       );
+<<<<<<< HEAD
       const occupiedSpots = Math.max(0, Number(spot.occupiedSpots) || 0);
       const usedSpaces = Math.min(totalSpaces, reservedSpots + occupiedSpots);
       const availableSpots = Math.max(totalSpaces - usedSpaces, 0);
+=======
+      const availableSpots = Math.max(totalSpaces - reservedSpots, 0);
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
       const baseAvailableFlag =
         typeof spot.available === "boolean"
           ? spot.available
@@ -280,7 +389,10 @@ const getParkingSpotsWithLiveAvailability = async (req, res) => {
         longitude,
         totalSpaces,
         reservedSpots,
+<<<<<<< HEAD
         occupiedSpots,
+=======
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
         availableSpots,
         available: baseAvailableFlag && availableSpots > 0,
         isReserved: spot.isReserved || false,
@@ -320,7 +432,10 @@ const reserveParkingSpot = async (req, res) => {
     }
 
     const totalSpaces = Number(spot.totalSpaces) > 0 ? Number(spot.totalSpaces) : 1;
+<<<<<<< HEAD
     const occupiedSpots = Math.max(0, Number(spot.occupiedSpots) || 0);
+=======
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
     const now = new Date();
 
     const [reservedCount, existingUserReservation] = await Promise.all([
@@ -355,9 +470,13 @@ const reserveParkingSpot = async (req, res) => {
       }
     }
 
+<<<<<<< HEAD
     const usedSpaces = reservedCount + occupiedSpots;
 
     if (usedSpaces >= totalSpaces || spot.isAvailable === false) {
+=======
+    if (reservedCount >= totalSpaces || spot.isAvailable === false) {
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
       return res.status(409).json({ message: "This parking spot is currently full" });
     }
 
@@ -564,17 +683,26 @@ const setParkingSpotAvailability = async (req, res) => {
   try {
     const { spotId } = req.params;
     const userId = getUserIdFromRequest(req);
+<<<<<<< HEAD
     const { isAvailable, occupiedSpots } = req.body || {};
+=======
+    const { isAvailable } = req.body || {};
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
 
     if (!userId) {
       return res.status(400).json({ message: "userId is required" });
     }
 
+<<<<<<< HEAD
     if (
       typeof isAvailable !== "boolean" &&
       (typeof occupiedSpots !== "number" || !Number.isFinite(occupiedSpots))
     ) {
       return res.status(400).json({ message: "Provide isAvailable(boolean) or occupiedSpots(number)" });
+=======
+    if (typeof isAvailable !== "boolean") {
+      return res.status(400).json({ message: "isAvailable must be a boolean" });
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
     }
 
     const user = await User.findById(userId).lean();
@@ -589,6 +717,7 @@ const setParkingSpotAvailability = async (req, res) => {
       return res.status(404).json({ message: "Parking spot not found" });
     }
 
+<<<<<<< HEAD
     if (typeof occupiedSpots === "number" && Number.isFinite(occupiedSpots)) {
       const totalSpaces = Number(spot.totalSpaces) > 0 ? Number(spot.totalSpaces) : 1;
       spot.occupiedSpots = Math.min(Math.max(0, Math.floor(occupiedSpots)), totalSpaces);
@@ -609,11 +738,18 @@ const setParkingSpotAvailability = async (req, res) => {
     const currentOccupied = Math.max(0, Number(spot.occupiedSpots) || 0);
     const usedSpaces = Math.min(totalSpaces, reservedCount + currentOccupied);
     spot.isAvailable = usedSpaces < totalSpaces;
+=======
+    spot.isAvailable = isAvailable;
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
     spot.lastUpdated = new Date();
     await spot.save();
 
     return res.status(200).json({
+<<<<<<< HEAD
       message: `Parking spot updated. ${Math.max(totalSpaces - usedSpaces, 0)} spots available.`,
+=======
+      message: `Parking spot marked as ${isAvailable ? "available" : "full"}`,
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
       spot,
     });
   } catch (error) {

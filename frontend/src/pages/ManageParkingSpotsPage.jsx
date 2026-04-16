@@ -13,7 +13,10 @@ function ManageParkingSpotsPage() {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [updatingSpotId, setUpdatingSpotId] = useState("");
+<<<<<<< HEAD
   const [occupiedInputs, setOccupiedInputs] = useState({});
+=======
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -44,12 +47,15 @@ function ManageParkingSpotsPage() {
       }
 
       setSpots(Array.isArray(data) ? data : []);
+<<<<<<< HEAD
       setOccupiedInputs(
         (Array.isArray(data) ? data : []).reduce((acc, spot) => {
           acc[spot._id] = String(Math.max(0, Number(spot.occupiedSpots) || 0));
           return acc;
         }, {})
       );
+=======
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
     } catch (err) {
       setError(err.message || "Unable to load parking spots.");
     } finally {
@@ -144,6 +150,7 @@ function ManageParkingSpotsPage() {
     }
   };
 
+<<<<<<< HEAD
   const handleSaveOccupiedSpots = async (spot) => {
     const userId = getCurrentUserId();
 
@@ -188,6 +195,8 @@ function ManageParkingSpotsPage() {
     }
   };
 
+=======
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
   const stats = useMemo(() => {
     const total = spots.length;
     const available = spots.filter((spot) => {
@@ -274,6 +283,7 @@ function ManageParkingSpotsPage() {
                               ? "Full"
                               : "Available"}
                         </span>
+<<<<<<< HEAD
                         <span>
                           {Math.max(0, Number(spot.availableSpots) || 0)} / {Math.max(1, Number(spot.totalSpaces) || 1)} free
                         </span>
@@ -301,6 +311,8 @@ function ManageParkingSpotsPage() {
                         >
                           {updatingSpotId === spot._id ? "Saving..." : "Save Occupied"}
                         </button>
+=======
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
                         <button
                           type="button"
                           className="refresh-list-btn"

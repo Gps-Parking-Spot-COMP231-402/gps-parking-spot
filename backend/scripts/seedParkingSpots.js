@@ -1,10 +1,15 @@
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const ParkingSpot = require("../models/ParkingSpot");
+<<<<<<< HEAD
 const configureDns = require("../utils/configureDns");
 
 dotenv.config();
 configureDns();
+=======
+
+dotenv.config();
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
 
 const sampleParkingSpots = [
   {
@@ -480,6 +485,7 @@ const sampleParkingSpots = [
     totalSpaces: 1,
     description: "Free EV parking near south entrance",
   },
+<<<<<<< HEAD
   {
     spotCode: "MCS-EAST-REG",
     lotName: "Mississauga Celebration Square - East Lot",
@@ -576,6 +582,8 @@ const sampleParkingSpots = [
     occupiedSpots: 12,
     description: "Accessible indoor parking near theatre elevators",
   },
+=======
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
 ];
 
 async function seedParkingSpots() {

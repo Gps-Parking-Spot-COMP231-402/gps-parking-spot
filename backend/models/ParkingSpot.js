@@ -65,11 +65,14 @@ const parkingSpotSchema = new mongoose.Schema(
       type: Number,
       default: 1,
     },
+<<<<<<< HEAD
     occupiedSpots: {
       type: Number,
       default: 0,
       min: 0,
     },
+=======
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
   },
   {
     timestamps: true,

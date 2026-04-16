@@ -8,15 +8,46 @@ import "./ParkingResultsPage.css";
 const API_BASE = getApiBase();
 
 function ParkingResultsPage() {
+<<<<<<< HEAD
+=======
+  const locationHook = useLocation();
+  const navigate = useNavigate();
+
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
   const [parkingSpots, setParkingSpots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedSpot, setSelectedSpot] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(null);
+<<<<<<< HEAD
 
   const locationHook = useLocation();
   const navigate = useNavigate();
+=======
+  const [userCoords, setUserCoords] = useState(null);
+  const [locationReady, setLocationReady] = useState(false);
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setLocationReady(true);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserCoords({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+        setLocationReady(true);
+      },
+      () => {
+        setLocationReady(true);
+      }
+    );
+  }, []);
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
 
   const fetchParkingSpots = useCallback(async ({ silent = false } = {}) => {
     const params = new URLSearchParams(locationHook.search);
@@ -34,8 +65,24 @@ function ParkingResultsPage() {
     setError("");
 
     try {
+<<<<<<< HEAD
       const response = await fetch(
         `${API_BASE}/api/parking/search?location=${encodeURIComponent(location)}&maxPrice=${encodeURIComponent(maxPrice)}&freeOnly=${encodeURIComponent(freeOnly)}`
+=======
+      const searchParams = new URLSearchParams({
+        location,
+        maxPrice,
+        freeOnly,
+      });
+
+      if (userCoords?.lat && userCoords?.lng) {
+        searchParams.append("lat", userCoords.lat);
+        searchParams.append("lng", userCoords.lng);
+      }
+
+      const response = await fetch(
+        `${API_BASE}/api/parking/search?${searchParams.toString()}`
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
       );
 
       if (!response.ok) {
@@ -65,24 +112,55 @@ function ParkingResultsPage() {
       }
       setIsRefreshing(false);
     }
+<<<<<<< HEAD
   }, [locationHook.search]);
 
   useEffect(() => {
     fetchParkingSpots();
   }, [fetchParkingSpots]);
+=======
+  }, [locationHook.search, userCoords]);
+
+  useEffect(() => {
+    if (!locationReady) return;
+    fetchParkingSpots();
+  }, [fetchParkingSpots, locationReady]);
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
 
   const params = useMemo(() => {
     return new URLSearchParams(locationHook.search);
   }, [locationHook.search]);
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
   const searchLocation = params.get("location") || "";
   const searchMaxPrice = params.get("maxPrice") || "";
   const freeOnlyEnabled = ["1", "true"].includes(
     (params.get("freeOnly") || "0").toLowerCase()
   );
 
+<<<<<<< HEAD
   if (loading) return <div className="loading-container"><p>Loading parking spots...</p></div>;
   if (error) return <div className="error-container"><p>Error: {error}</p></div>;
+=======
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <p>Loading parking spots...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="error-container">
+        <p>Error: {error}</p>
+      </div>
+    );
+  }
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
 
   return (
     <div className="parking-results-page">
@@ -99,7 +177,13 @@ function ParkingResultsPage() {
           </p>
           <p className="results-live-status">
             {isRefreshing ? "Syncing..." : "Manual updates only"}
+<<<<<<< HEAD
             {lastUpdated ? ` • Last updated ${lastUpdated.toLocaleTimeString()}` : ""}
+=======
+            {lastUpdated
+              ? ` • Last updated ${lastUpdated.toLocaleTimeString()}`
+              : ""}
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
           </p>
           <button
             type="button"
@@ -113,15 +197,29 @@ function ParkingResultsPage() {
       </div>
 
       {parkingSpots.length === 0 ? (
+<<<<<<< HEAD
         <p className="no-results">No parking spots found matching your criteria.</p>
+=======
+        <p className="no-results">
+          No parking spots found matching your criteria.
+        </p>
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
       ) : (
         <div className="results-container">
           <section className="spots-list">
             <h3>Available Parking Lots ({parkingSpots.length})</h3>
+<<<<<<< HEAD
             {parkingSpots.map((spot) => (
               <ParkingCard
                 key={spot._id}
                 spot={spot}
+=======
+            {parkingSpots.map((spot, index) => (
+              <ParkingCard
+                key={spot._id}
+                spot={spot}
+                rank={index}
+>>>>>>> 5cb4643a5592311ee50eb522db2a5c4ff9038eb6
                 isSelected={selectedSpot?._id === spot._id}
                 onSelect={setSelectedSpot}
               />
