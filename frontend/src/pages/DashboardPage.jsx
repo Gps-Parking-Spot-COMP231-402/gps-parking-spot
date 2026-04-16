@@ -322,79 +322,59 @@ function DashboardPage() {
     loadPreferences();
   }, [fetchSpots, loadPreferences]);
 
-  const handleReserveSpot = async () => {
-    if (!selectedSpot?._id || isReserving) {
-      return;
-    }
+const handleReserveSpot = async () => {
+  if (!selectedSpot?._id || isReserving) {
+    return;
+  }
 
-    if (isSelectedSpotRestricted) {
-      setReservationError("This parking spot is reserved for admin users only.");
-      setReservationMessage("");
-      return;
-    }
-
-    const userId = getCurrentUserId();
-    if (!userId) {
-      setReservationError("Please login to reserve a parking spot.");
-      setReservationMessage("");
-      return;
-    }
-
-    setIsReserving(true);
-    setReservationError("");
+  if (isSelectedSpotRestricted) {
+    setReservationError("This parking spot is reserved for admin users only.");
     setReservationMessage("");
+    return;
+  }
 
-    try {
-      const enteredCode = promoCode.trim().toUpperCase();
-      const baseAmount =
-        typeof selectedSpot?.pricePerHour === "number" && selectedSpot.isPaid !== false
-          ? selectedSpot.pricePerHour
-          : 0;
+  const userId = getCurrentUserId();
+  if (!userId) {
+    setReservationError("Please login to reserve a parking spot.");
+    setReservationMessage("");
+    return;
+  }
 
-      await new Promise((resolve) => setTimeout(resolve, 800));
+  setIsReserving(true);
+  setReservationError("");
+  setReservationMessage("");
 
-      if (enteredCode === "FREE2026") {
-        const demoReservation = {
-          _id: `demo-free-${Date.now()}`,
-          paymentStatus: "paid",
-          amountDue: 0,
-        };
-
-        setActiveReservation(demoReservation);
-        setReservationMessage("Spot reserved for FREE using code.");
-        return;
+  try {
+    const response = await fetch(
+      `${API_BASE}/api/parking/${selectedSpot._id}/reserve`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          durationHours: 1,
+        }),
       }
+    );
 
-      if (enteredCode && enteredCode !== "FREE2026") {
-        const demoReservation = {
-          _id: `demo-pending-${Date.now()}`,
-          paymentStatus: "pending",
-          amountDue: baseAmount,
-        };
+    const data = await parseResponseSafely(response);
 
-        setActiveReservation(demoReservation);
-        setReservationMessage("Invalid code. Payment required.");
-        return;
-      }
-
-      const demoReservation = {
-        _id: `demo-standard-${Date.now()}`,
-        paymentStatus: baseAmount > 0 ? "pending" : "paid",
-        amountDue: baseAmount,
-      };
-
-      setActiveReservation(demoReservation);
-      setReservationMessage(
-        baseAmount > 0
-          ? "Reservation created. Payment required."
-          : "Spot reserved successfully."
-      );
-    } catch (err) {
-      setReservationError(err.message || "Unable to reserve this parking spot");
-    } finally {
-      setIsReserving(false);
+    if (!response.ok) {
+      throw new Error(data.message || "Unable to reserve this parking spot");
     }
-  };
+
+    setActiveReservation(data.reservation || null);
+    setReservationMessage(data.message || "Spot reserved successfully.");
+
+    await fetchSpots({ silent: true });
+  } catch (err) {
+    setReservationError(err.message || "Unable to reserve this parking spot");
+  } finally {
+    setIsReserving(false);
+  }
+};
 
   const handlePayReservation = async () => {
     if (!activeReservation?._id || isPaying) {
