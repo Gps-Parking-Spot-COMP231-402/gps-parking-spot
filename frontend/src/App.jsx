@@ -18,6 +18,7 @@ import AdminDashboardPage from "./pages/AdminDashboardPage";
 import ManageParkingSpotsPage from "./pages/ManageParkingSpotsPage";
 import AdminUsersPage from "./pages/AdminUsersPage";
 import RegistrationSuggestionPage from "./pages/RegistrationSuggestionPage";
+import AdminAnalyticsPage from "./pages/AdminAnalyticsPage";
 
 const getStoredUser = () => {
   const tokenStorage = sessionStorage.getItem("token")
@@ -154,6 +155,10 @@ function App() {
           <Route
             path="/register-suggestion"
             element={<RegistrationSuggestionPage />}
+          />
+          <Route 
+            path="/admin/analytics" 
+            element={<AdminAnalyticsPage />} 
           />
         </Routes>
       </div>

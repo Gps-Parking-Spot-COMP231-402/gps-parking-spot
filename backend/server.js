@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./config/db");
 const ensureAdminUser = require("./utils/ensureAdminUser");
+const analyticsRoutes = require("./routes/analyticsRoutes");
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use("/api/parking", require("./routes/parkingRoutes"));
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/preferences", require("./routes/preferencesRoutes"));
+app.use("/api/admin/analytics", analyticsRoutes);
 
 app.get("/", (req, res) => {
   res.send("Backend is running...");
